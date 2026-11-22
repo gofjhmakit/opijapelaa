@@ -192,6 +192,44 @@ for (i = 0; i < N; i++) {
   ok(sy.answer >= 1 && sy.answer <= 6, "syllables answer in 1..6");
 }
 
+/* ---------------- groups ("Mikä kuuluu joukkoon?") ---------------- */
+// categories must be disjoint, or a distractor could secretly belong to the group
+var catOf = {};
+Hub.groups.CATEGORIES.forEach(function (c, idx) {
+  c.words.forEach(function (w) {
+    ok(!(w in catOf), "group word appears in only one category: " + w);
+    catOf[w] = idx;
+  });
+});
+ok(Hub.groups.CATEGORIES.every(function (c) { return c.words.length >= 4; }), "each group category has >= 4 words");
+for (i = 0; i < N; i++) {
+  var g = Hub.groups.make();
+  ok(g.examples.length === 3 && distinct(g.examples), "groups 3 distinct examples");
+  ok(g.options.length === 3 && distinct(g.options), "groups 3 distinct options");
+  ok(g.options.indexOf(g.answer) >= 0, "groups options include answer");
+  ok(g.examples.indexOf(g.answer) < 0, "groups answer not among examples");
+  var ac = catOf[g.answer];
+  ok(g.examples.every(function (e) { return catOf[e] === ac; }), "groups examples share the answer's category");
+  g.options.forEach(function (o) {
+    if (o !== g.answer) { ok(catOf[o] !== ac, "groups distractor is from a different category: " + o); }
+  });
+}
+
+/* ---------------- riddles ("Mikä on...?") ---------------- */
+ok(Hub.riddles.QA.length >= 40, "riddles has a large pool (" + Hub.riddles.QA.length + ")");
+Hub.riddles.QA.forEach(function (item) {
+  ok(typeof item.q === "string" && item.q.length > 3, "riddle has a question: " + item.q);
+  ok(item.w.length >= 2, "riddle has >= 2 distractors: " + item.q);
+  ok(item.w.indexOf(item.a) < 0, "riddle answer not among its distractors: " + item.q);
+  ok(distinct(item.w), "riddle distractors distinct: " + item.q);
+});
+for (i = 0; i < N; i++) {
+  var rq = Hub.riddles.make();
+  ok(rq.options.length === 3 && distinct(rq.options), "riddles 3 distinct options");
+  ok(rq.options.indexOf(rq.answer) >= 0, "riddles options include answer");
+  ok(typeof rq.q === "string" && rq.q.length > 3, "riddles question present");
+}
+
 /* ---------------- content validation ---------------- */
 function noDup(arr, label) { ok(distinct(arr), label + " has no duplicates"); }
 noDup(Hub.reading.EASY, "reading.EASY");

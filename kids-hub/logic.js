@@ -372,6 +372,132 @@
     ]
   };
 
+  /* ---------- "Mikä kuuluu joukkoon?" (belongs to the group) ---------- */
+  /* Categories are DISJOINT (no word in two), so any word outside the shown
+     category is a valid "does not belong" distractor. */
+  Hub.groups = {
+    CATEGORIES: [
+      { name: "värit", words: ["punainen","sininen","keltainen","vihreä","oranssi","violetti","ruskea","musta","valkoinen","harmaa","pinkki","turkoosi"] },
+      { name: "eläimet", words: ["koira","kissa","hevonen","lehmä","lammas","sika","pupu","hiiri","karhu","kettu","orava","leijona","tiikeri","norsu","apina","susi"] },
+      { name: "linnut", words: ["varpunen","harakka","varis","pöllö","joutsen","sorsa","kana","kukko","papukaija","lokki","tiainen","peippo"] },
+      { name: "hedelmät", words: ["omena","banaani","appelsiini","päärynä","mansikka","mustikka","vadelma","kirsikka","luumu","persikka","ananas","meloni","sitruuna","viinirypäle"] },
+      { name: "ajoneuvot", words: ["auto","bussi","juna","lentokone","laiva","polkupyörä","mopo","traktori","kuorma-auto","helikopteri","moottoripyörä","raitiovaunu"] },
+      { name: "kehonosat", words: ["pää","käsi","jalka","silmä","korva","nenä","suu","sormi","varvas","vatsa","selkä","polvi"] },
+      { name: "vaatteet", words: ["paita","housut","takki","hattu","kengät","sukat","hanskat","huivi","mekko","pipo","saappaat","lippalakki"] },
+      { name: "ruoka", words: ["leipä","juusto","maito","peruna","riisi","keitto","puuro","makkara","muna","voi","nakki","pannukakku"] },
+      { name: "huonekalut", words: ["tuoli","pöytä","sänky","sohva","kaappi","hylly","peili","matto","lamppu","nojatuoli"] },
+      { name: "numerot", words: ["yksi","kaksi","kolme","neljä","viisi","seitsemän","kahdeksan","yhdeksän","kymmenen","sata"] },
+      { name: "tunteet", words: ["iloinen","surullinen","vihainen","väsynyt","peloissaan","innoissaan","rauhallinen","ujo"] },
+      { name: "luonto", words: ["puu","kukka","kivi","ruoho","lehti","järvi","vuori","metsä","joki","pelto","pensas","sammal"] }
+    ],
+    _pick: null,
+    make: function () {
+      var CS = Hub.groups.CATEGORIES;
+      if (!Hub.groups._pick) { Hub.groups._pick = Hub.makePicker(CS.length, 4); }
+      var ci = Hub.groups._pick();
+      var cat = CS[ci];
+      var picks = Hub.shuffle(cat.words.slice());
+      var examples = [picks[0], picks[1], picks[2]];
+      var answer = picks[3];
+      // distractors from any OTHER category
+      var others = [], i, j;
+      for (i = 0; i < CS.length; i++) {
+        if (i === ci) continue;
+        for (j = 0; j < CS[i].words.length; j++) others.push(CS[i].words[j]);
+      }
+      others = Hub.shuffle(others);
+      var opts = [answer, others[0], others[1]];
+      return { name: cat.name, examples: examples, answer: answer, options: Hub.shuffle(opts) };
+    }
+  };
+
+  /* ---------- "Mikä on...?" (riddles / what is) ---------- */
+  Hub.riddles = {
+    QA: [
+      { q: "Mikä on suurin?", a: "norsu", w: ["hiiri","kissa","orava","pupu"] },
+      { q: "Mikä on pienin?", a: "muurahainen", w: ["hevonen","lehmä","karhu","norsu"] },
+      { q: "Mikä on pisin?", a: "kirahvi", w: ["sika","pupu","kissa","hiiri"] },
+      { q: "Mikä on nopein?", a: "gepardi", w: ["etana","kilpikonna","mato"] },
+      { q: "Mikä on hitain?", a: "etana", w: ["gepardi","jänis","hevonen"] },
+      { q: "Mikä on raskain?", a: "norsu", w: ["höyhen","lehti","hiiri"] },
+      { q: "Mikä on kevyin?", a: "höyhen", w: ["kivi","norsu","auto"] },
+      { q: "Mikä on korkein?", a: "vuori", w: ["kivi","pensas","talo"] },
+      { q: "Mikä on vahvin?", a: "karhu", w: ["hiiri","pupu","orava"] },
+      { q: "Mikä on keltainen?", a: "aurinko", w: ["lumi","ruoho","hiili"] },
+      { q: "Mikä on valkoinen?", a: "lumi", w: ["ruoho","tuli","hiili"] },
+      { q: "Mikä on vihreä?", a: "ruoho", w: ["lumi","aurinko","hiili"] },
+      { q: "Mikä on sininen?", a: "taivas", w: ["ruoho","lumi","hiili"] },
+      { q: "Mikä on punainen?", a: "tomaatti", w: ["banaani","kurkku","lumi"] },
+      { q: "Mikä on mustavalkoinen?", a: "harakka", w: ["papukaija","varpunen","peippo"] },
+      { q: "Mikä on oranssi?", a: "porkkana", w: ["herne","maito","hiili"] },
+      { q: "Mikä on ruskea?", a: "suklaa", w: ["lumi","ruoho","taivas"] },
+      { q: "Mikä on raidallinen?", a: "seepra", w: ["leijona","norsu","kirahvi"] },
+      { q: "Mikä on kuuma?", a: "tuli", w: ["jää","lumi","jäätelö"] },
+      { q: "Mikä on kylmä?", a: "jää", w: ["tuli","uuni","aurinko"] },
+      { q: "Mikä on märkä?", a: "vesi", w: ["hiekka","kivi","paperi"] },
+      { q: "Mikä on pehmeä?", a: "tyyny", w: ["kivi","rauta","lasi"] },
+      { q: "Mikä on kova?", a: "kivi", w: ["tyyny","pumpuli","vaahtokarkki"] },
+      { q: "Mikä on terävä?", a: "veitsi", w: ["pallo","tyyny","sieni"] },
+      { q: "Mikä on makea?", a: "hunaja", w: ["sitruuna","suola","etikka"] },
+      { q: "Mikä on hapan?", a: "sitruuna", w: ["hunaja","sokeri","banaani"] },
+      { q: "Mikä on suolainen?", a: "suola", w: ["sokeri","hunaja","mansikka"] },
+      { q: "Mikä osaa lentää?", a: "lintu", w: ["kala","koira","hevonen"] },
+      { q: "Mikä osaa uida?", a: "kala", w: ["orava","kana","hiiri"] },
+      { q: "Mikä hyppii?", a: "jänis", w: ["kala","mato","etana"] },
+      { q: "Mikä ryömii?", a: "mato", w: ["lintu","hevonen","kala"] },
+      { q: "Mikä haukkuu?", a: "koira", w: ["kissa","lehmä","kana"] },
+      { q: "Mikä naukuu?", a: "kissa", w: ["koira","lehmä","sika"] },
+      { q: "Mikä sanoo muu?", a: "lehmä", w: ["kissa","koira","kana"] },
+      { q: "Mikä kiekuu?", a: "kukko", w: ["lehmä","kissa","kala"] },
+      { q: "Mikä hirnuu?", a: "hevonen", w: ["kissa","kala","lintu"] },
+      { q: "Mikä murisee?", a: "karhu", w: ["hiiri","pupu","lintu"] },
+      { q: "Mikä sanoo kvaak?", a: "ankka", w: ["kissa","koira","hevonen"] },
+      { q: "Mikä sanoo bää?", a: "lammas", w: ["koira","kissa","kala"] },
+      { q: "Mikä asuu vedessä?", a: "kala", w: ["karhu","orava","kettu"] },
+      { q: "Mikä asuu puussa?", a: "orava", w: ["kala","lehmä","hevonen"] },
+      { q: "Mikä on yöllä taivaalla?", a: "kuu", w: ["aurinko","sateenkaari","pilvi"] },
+      { q: "Mikä paistaa päivällä?", a: "aurinko", w: ["kuu","tähti","yö"] },
+      { q: "Mikä hohtaa yöllä?", a: "tähti", w: ["kivi","puu","auto"] },
+      { q: "Mikä valaisee pimeässä?", a: "lamppu", w: ["kivi","tuoli","kirja"] },
+      { q: "Mikä kulkee kiskoilla?", a: "juna", w: ["auto","laiva","lentokone"] },
+      { q: "Mikä lentää taivaalla?", a: "lentokone", w: ["laiva","juna","auto"] },
+      { q: "Mikä kulkee vedessä?", a: "laiva", w: ["juna","auto","polkupyörä"] },
+      { q: "Mikä kuljettaa monta ihmistä?", a: "bussi", w: ["polkupyörä","mopo","potkulauta"] },
+      { q: "Mikä antaa maitoa?", a: "lehmä", w: ["kana","kala","kissa"] },
+      { q: "Mikä munii munia?", a: "kana", w: ["lehmä","sika","hevonen"] },
+      { q: "Mikä tekee hunajaa?", a: "mehiläinen", w: ["perhonen","kärpänen","muurahainen"] },
+      { q: "Mikä on pyöreä?", a: "pallo", w: ["kirja","laatikko","pöytä"] },
+      { q: "Mikä kasvaa maassa?", a: "porkkana", w: ["kala","lintu","pilvi"] },
+      { q: "Mikä kasvaa puussa?", a: "omena", w: ["peruna","sipuli","porkkana"] },
+      { q: "Mikä on pitkä ja keltainen?", a: "banaani", w: ["omena","mansikka","mustikka"] },
+      { q: "Mikä sataa taivaalta?", a: "sade", w: ["aurinko","kuu","tähti"] },
+      { q: "Mikä on talvella valkoista?", a: "lumi", w: ["tuli","aurinko","ruoho"] },
+      { q: "Mikä on makea jälkiruoka?", a: "jäätelö", w: ["peruna","kala","leipä"] },
+      { q: "Mikä on suurin meressä?", a: "valas", w: ["kala","rapu","simpukka"] },
+      { q: "Mikä kukkii keväällä?", a: "kukka", w: ["kivi","auto","pöytä"] },
+      { q: "Mikä on makea marja?", a: "mansikka", w: ["sipuli","peruna","suola"] },
+      { q: "Mikä on pörröinen?", a: "pupu", w: ["kala","kivi","lasi"] },
+      { q: "Mikä pistää, jos siihen koskee?", a: "neula", w: ["pallo","tyyny","pumpuli"] },
+      { q: "Mikä kelluu vedessä?", a: "vene", w: ["kivi","rauta","naula"] },
+      { q: "Mikä uppoaa veteen?", a: "kivi", w: ["lehti","höyhen","vene"] },
+      { q: "Mikä on makea ja tarttuu hampaisiin?", a: "karkki", w: ["peruna","kala","leipä"] },
+      { q: "Mikä kertoo ajan?", a: "kello", w: ["kirja","tyyny","lautanen"] },
+      { q: "Mikä kirjoittaa?", a: "kynä", w: ["lusikka","sakset","pallo"] },
+      { q: "Mikä leikkaa?", a: "sakset", w: ["kynä","lusikka","pallo"] },
+      { q: "Mikä kantaa taloa selässään?", a: "kotilo", w: ["jänis","koira","kissa"] },
+      { q: "Mikä on töpöhäntä?", a: "pupu", w: ["kissa","koira","hevonen"] }
+    ],
+    _pick: null,
+    make: function () {
+      var Q = Hub.riddles.QA;
+      if (!Hub.riddles._pick) { Hub.riddles._pick = Hub.makePicker(Q.length, 8); }
+      var item = Q[Hub.riddles._pick()];
+      var w = Hub.shuffle(item.w.slice());
+      var opts = [item.a, w[0], w[1]];
+      return { q: item.q, answer: item.a, options: Hub.shuffle(opts) };
+    }
+  };
+
   root.Hub = Hub;
   if (typeof module !== "undefined" && module.exports) module.exports = Hub;
 })(typeof window !== "undefined" ? window : this);

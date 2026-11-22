@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mikä on...?</title>
+<link rel="stylesheet" href="hub.css">
+  <script src="ui.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="btn-back" href="index.html">&#8592; Takaisin</a>
+    <div class="stars"><span id="starCount">0</span> <span class="s">&#9733;</span></div>
+  </div>
+
+  <div class="card">
+    <div id="question" class="question" style="font-size:52px;line-height:1.2;"></div>
+  </div>
+
+  <div class="answers" id="answers"></div>
+  <div id="feedback" class="feedback">&nbsp;</div>
+</div>
+
+<script src="logic.js"></script>
+<script src="celebrate.js"></script>
+<script type="text/javascript">
+(function () {
+  "use strict";
+  var stars = 0, locked = false, answer = "";
+  try { var sv = window.localStorage.getItem("hub_stars"); if (sv) { stars = parseInt(sv,10)||0; } } catch (e) {}
+
+  var el = {
+    q: document.getElementById("question"),
+    ans: document.getElementById("answers"),
+    fb: document.getElementById("feedback"),
+    star: document.getElementById("starCount")
+  };
+  el.star.innerHTML = String(stars);
+
+  function newQuestion(){
+    locked = false;
+    el.fb.className = "feedback"; el.fb.innerHTML = "&nbsp;";
+    var q = window.Hub.riddles.make();
+    answer = q.answer;
+    el.q.innerHTML = q.q;
+    el.ans.innerHTML = "";
+    for (var m=0;m<q.options.length;m++){
+      var b = document.createElement("button");
+      b.className = "answer";
+      b.style.width = "auto"; b.style.minWidth = "150px"; b.style.padding = "0 22px";
+      b.style.fontSize = "32px";
+      b.innerHTML = q.options[m];
+      b.setAttribute("data-v", q.options[m]);
+      b.onclick = onAnswer;
+      el.ans.appendChild(b);
+    }
+  }
+
+  function onAnswer(){
+    if (locked) return;
+    if (this.getAttribute("data-v") === answer){
+      locked = true;
+      this.className = "answer good";
+      el.fb.className = "feedback ok"; el.fb.innerHTML = "Oikein! &#9733;";
+      stars++; el.star.innerHTML = String(stars);
+      try { window.localStorage.setItem("hub_stars", String(stars)); } catch(e){}
+      try { if (window.celebrate) window.celebrate(); } catch(e){}
+      setTimeout(newQuestion, 1300);
+    } else {
+      this.className = "answer bad";
+      el.fb.className = "feedback no"; el.fb.innerHTML = "Yrit&auml; uudelleen";
+    }
+  }
+
+  newQuestion();
+  setTimeout(function(){ window.scrollTo(0,1); }, 200);
+})();
+</script>
+</body>
+</html>
