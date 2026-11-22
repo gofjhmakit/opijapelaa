@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Opi ja pelaa</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<div class="wrap">
+  <h1 class="title">Opi ja pelaa</h1>
+  <p class="subtitle">Valitse peli</p>
+
+  <a class="tile tile-read" href="lue.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <rect x="12" y="24" width="44" height="74" rx="6" fill="#fff"/>
+      <rect x="64" y="24" width="44" height="74" rx="6" fill="#fff"/>
+      <rect x="56" y="22" width="8" height="78" fill="#dbe4ff"/>
+      <line x1="20" y1="40" x2="48" y2="40" stroke="#4c6ef5" stroke-width="4"/>
+      <line x1="20" y1="54" x2="48" y2="54" stroke="#91a7ff" stroke-width="4"/>
+      <line x1="20" y1="68" x2="48" y2="68" stroke="#91a7ff" stroke-width="4"/>
+      <line x1="72" y1="40" x2="100" y2="40" stroke="#4c6ef5" stroke-width="4"/>
+      <line x1="72" y1="54" x2="100" y2="54" stroke="#91a7ff" stroke-width="4"/>
+      <line x1="72" y1="68" x2="100" y2="68" stroke="#91a7ff" stroke-width="4"/>
+    </svg>
+    <span class="label">Lukeminen</span>
+  </a>
+
+  <a class="tile tile-math" href="laske.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <text x="34" y="52" font-size="44" font-weight="800" fill="#fff" text-anchor="middle">1</text>
+      <text x="84" y="52" font-size="44" font-weight="800" fill="#fff" text-anchor="middle">2</text>
+      <g stroke="#fff" stroke-width="9" stroke-linecap="round">
+        <line x1="42" y1="86" x2="78" y2="86"/>
+        <line x1="60" y1="68" x2="60" y2="104"/>
+      </g>
+    </svg>
+    <span class="label">Laskeminen</span>
+  </a>
+
+  <a class="tile tile-clock" href="kello.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="42" fill="#fff"/>
+      <circle cx="60" cy="62" r="42" fill="none" stroke="#e8820c" stroke-width="4"/>
+      <circle cx="60" cy="18" r="0"/>
+      <g stroke="#e8820c" stroke-width="5" stroke-linecap="round">
+        <line x1="60" y1="62" x2="60" y2="36"/>
+        <line x1="60" y1="62" x2="82" y2="62"/>
+      </g>
+      <circle cx="60" cy="62" r="5" fill="#e8820c"/>
+      <rect x="56" y="12" width="8" height="8" rx="2" fill="#fff"/>
+    </svg>
+    <span class="label">Kello</span>
+  </a>
+
+  <a class="tile tile-opp" href="vastakohdat.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <circle cx="34" cy="60" r="12" fill="#fff"/>
+      <circle cx="86" cy="60" r="26" fill="#fff"/>
+      <g stroke="#fff" stroke-width="6" stroke-linecap="round">
+        <line x1="52" y1="98" x2="70" y2="98"/>
+        <polyline points="58,92 52,98 58,104" fill="none"/>
+        <polyline points="64,92 70,98 64,104" fill="none"/>
+      </g>
+    </svg>
+    <span class="label">Vastakohdat</span>
+  </a>
+
+  <a class="tile tile-color" href="varit.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <circle cx="46" cy="50" r="26" fill="#f03e3e"/>
+      <circle cx="74" cy="50" r="26" fill="#1971c2" fill-opacity="0.85"/>
+      <circle cx="60" cy="74" r="26" fill="#f2cc0c" fill-opacity="0.85"/>
+    </svg>
+    <span class="label">V&auml;rit</span>
+  </a>
+
+  <a class="tile tile-comp" href="vertailu.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <text x="30" y="74" font-size="40" font-weight="800" fill="#fff" text-anchor="middle">3</text>
+      <text x="62" y="78" font-size="60" font-weight="800" fill="#fff" text-anchor="middle">&lt;</text>
+      <text x="94" y="78" font-size="56" font-weight="800" fill="#fff" text-anchor="middle">8</text>
+    </svg>
+    <span class="label">Vertailu</span>
+  </a>
+
+  <a class="tile tile-shape" href="muodot.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <circle cx="40" cy="44" r="18" fill="#fff"/>
+      <rect x="62" y="26" width="36" height="36" rx="4" fill="#fff"/>
+      <polygon points="60,70 82,104 38,104" fill="#fff"/>
+    </svg>
+    <span class="label">Muodot</span>
+  </a>
+
+  <a class="tile tile-count" href="montako.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <circle cx="42" cy="44" r="13" fill="#fff"/>
+      <circle cx="78" cy="44" r="13" fill="#fff"/>
+      <circle cx="42" cy="80" r="13" fill="#fff"/>
+      <circle cx="78" cy="80" r="13" fill="#fff"/>
+    </svg>
+    <span class="label">Montako?</span>
+  </a>
+
+  <a class="tile tile-seq" href="lukujono.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <text x="60" y="76" font-size="40" font-weight="800" fill="#fff" text-anchor="middle">1 2 3</text>
+    </svg>
+    <span class="label">Lukujono</span>
+  </a>
+
+  <a class="tile tile-letters" href="kirjaimet.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <text x="60" y="76" font-size="42" font-weight="800" fill="#fff" text-anchor="middle">A B C</text>
+    </svg>
+    <span class="label">Kirjaimet</span>
+  </a>
+
+  <a class="tile tile-days" href="viikonpaivat.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <rect x="24" y="30" width="72" height="62" rx="8" fill="#fff"/>
+      <rect x="24" y="30" width="72" height="18" rx="8" fill="#dbe4ff"/>
+      <rect x="38" y="22" width="8" height="16" rx="3" fill="#fff"/>
+      <rect x="74" y="22" width="8" height="16" rx="3" fill="#fff"/>
+      <line x1="34" y1="60" x2="86" y2="60" stroke="#adb5bd" stroke-width="3"/>
+      <line x1="34" y1="74" x2="86" y2="74" stroke="#adb5bd" stroke-width="3"/>
+    </svg>
+    <span class="label">Viikonp&auml;iv&auml;t</span>
+  </a>
+
+  <a class="tile tile-syll" href="tavut.html">
+    <svg class="ico" viewBox="0 0 120 120">
+      <rect x="20" y="48" width="36" height="24" rx="10" fill="#fff"/>
+      <rect x="64" y="48" width="36" height="24" rx="10" fill="#fff"/>
+    </svg>
+    <span class="label">Tavut</span>
+  </a>
+
+  <p class="hint">Kuvat katsotaan Galleria-sovelluksesta.</p>
+</div>
+</body>
+</html>

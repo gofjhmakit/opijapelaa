@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>V&auml;rit</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="btn-back" href="index.html">&#8592; Takaisin</a>
+    <div class="stars"><span id="starCount">0</span> <span class="s">&#9733;</span></div>
+  </div>
+
+  <div class="modes">
+    <span class="mode-btn on" id="mWord">Sana &#8594; v&auml;ri</span>
+    <span class="mode-btn" id="mColor">V&auml;ri &#8594; sana</span>
+  </div>
+
+  <div class="card">
+    <p id="prompt" style="font-size:26px;color:#7a7a8c;margin:0 0 6px 0;">Mik&auml; v&auml;ri?</p>
+    <div id="show"></div>
+  </div>
+
+  <div class="answers" id="answers"></div>
+  <div id="feedback" class="feedback">&nbsp;</div>
+</div>
+
+<script src="logic.js"></script>
+<script src="celebrate.js"></script>
+<script type="text/javascript">
+(function () {
+  "use strict";
+
+  var COLORS = [
+    {n:"punainen", c:"#e03131"}, {n:"sininen", c:"#1971c2"},
+    {n:"keltainen", c:"#fcc419"}, {n:"vihreä", c:"#2f9e44"},
+    {n:"oranssi", c:"#e8590c"}, {n:"violetti", c:"#7048e8"},
+    {n:"ruskea", c:"#8c5a2b"}, {n:"vaaleanpunainen", c:"#f06595"},
+    {n:"musta", c:"#212529"}, {n:"valkoinen", c:"#ffffff", light:true},
+    {n:"harmaa", c:"#868e96"}
+  ];
+
+  var mode = "word";      // word = show word, pick colour; color = show colour, pick word
+  var stars = 0, locked = false, lastIdx = -1;
+  var target = null;
+  try { var sv = window.localStorage.getItem("hub_stars"); if (sv) { stars = parseInt(sv,10)||0; } } catch (e) {}
+
+  var el = {
+    prompt: document.getElementById("prompt"),
+    show: document.getElementById("show"),
+    ans: document.getElementById("answers"),
+    fb: document.getElementById("feedback"),
+    star: document.getElementById("starCount"),
+    mWord: document.getElementById("mWord"),
+    mColor: document.getElementById("mColor")
+  };
+  el.star.innerHTML = String(stars);
+
+  function rnd(n){ return Math.floor(Math.random()*n); }
+
+  function swatchHTML(c, light, w){
+    var border = light ? "4px solid #ced4da" : "4px solid rgba(0,0,0,0.12)";
+    return '<div style="display:inline-block;width:'+w+'px;height:'+w+'px;border-radius:22px;background:'+c+';border:'+border+';"></div>';
+  }
+
+  function pickColors(n){
+    var pool = [];
+    for (var i=0;i<COLORS.length;i++) pool.push(i);
+    // choose target
+    var ti = rnd(COLORS.length);
+    if (COLORS.length>1 && ti===lastIdx) ti=(ti+1)%COLORS.length;
+    lastIdx = ti;
+    var chosen = [ti];
+    var guard=0;
+    while (chosen.length<n && guard<200){
+      guard++;
+      var k = rnd(COLORS.length);
+      var dup=false;
+      for (var j=0;j<chosen.length;j++){ if(chosen[j]===k){dup=true;break;} }
+      if(!dup) chosen.push(k);
+    }
+    // shuffle
+    for (var a=chosen.length-1;a>0;a--){ var r=rnd(a+1); var t=chosen[a];chosen[a]=chosen[r];chosen[r]=t; }
+    return chosen;
+  }
+
+  function newQuestion(){
+    locked=false;
+    el.fb.className="feedback"; el.fb.innerHTML="&nbsp;";
+    var q = Hub.colors.make(mode);
+    target = q.target;
+    el.ans.innerHTML="";
+
+    if (mode === "word"){
+      el.prompt.innerHTML = "Minkä värinen?";
+      el.show.innerHTML = '<div class="word" style="color:#2b2b3a;">'+target.n+'</div>';
+      for (var i=0;i<q.options.length;i++){
+        (function(col){
+          var b=document.createElement("button");
+          b.className="swatch";
+          b.style.width="130px"; b.style.height="130px";
+          b.style.background=col.c;
+          if(col.light) b.style.border="4px solid #ced4da";
+          b.setAttribute("data-n", col.n);
+          b.onclick=onAnswer;
+          el.ans.appendChild(b);
+        })(q.options[i]);
+      }
+    } else {
+      el.prompt.innerHTML = "Mikä väri tämä on?";
+      el.show.innerHTML = swatchHTML(target.c, target.light, 150);
+      for (var m=0;m<q.options.length;m++){
+        (function(col){
+          var b=document.createElement("button");
+          b.className="answer";
+          b.style.width="auto"; b.style.minWidth="150px"; b.style.padding="0 20px";
+          b.style.fontSize="26px";
+          b.innerHTML=col.n;
+          b.setAttribute("data-n", col.n);
+          b.onclick=onAnswer;
+          el.ans.appendChild(b);
+        })(q.options[m]);
+      }
+    }
+  }
+
+  function onAnswer(){
+    if (locked) return;
+    var n=this.getAttribute("data-n");
+    var right = (n===target.n);
+    if (right){
+      locked=true;
+      this.className = (mode==="word") ? "swatch good" : "answer good";
+      el.fb.className="feedback ok"; el.fb.innerHTML="Oikein! &#9733;";
+      stars++; el.star.innerHTML=String(stars);
+      try { window.localStorage.setItem("hub_stars", String(stars)); } catch(e){}
+      try { if (window.celebrate) window.celebrate(); } catch(e){}
+      setTimeout(newQuestion, 1300);
+    } else {
+      this.className = (mode==="word") ? "swatch bad" : "answer bad";
+      el.fb.className="feedback no"; el.fb.innerHTML="Yritä uudelleen";
+    }
+  }
+
+  function setMode(m){
+    mode=m; lastIdx=-1;
+    el.mWord.className="mode-btn"+(m==="word"?" on":"");
+    el.mColor.className="mode-btn"+(m==="color"?" on":"");
+    newQuestion();
+  }
+  el.mWord.onclick=function(){ setMode("word"); };
+  el.mColor.onclick=function(){ setMode("color"); };
+
+  newQuestion();
+  setTimeout(function(){ window.scrollTo(0,1); }, 200);
+})();
+</script>
+</body>
+</html>

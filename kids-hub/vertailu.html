@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Vertailu</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="btn-back" href="index.html">&#8592; Takaisin</a>
+    <div class="stars"><span id="starCount">0</span> <span class="s">&#9733;</span></div>
+  </div>
+
+  <div class="modes">
+    <span class="mode-btn on" id="mBig">Suurempi</span>
+    <span class="mode-btn" id="mSmall">Pienempi</span>
+  </div>
+
+  <div class="card">
+    <p id="prompt" style="font-size:30px;color:#2b2b3a;font-weight:700;margin:4px 0 18px 0;">Kumpi on suurempi?</p>
+    <div class="answers" id="answers"></div>
+  </div>
+  <div id="feedback" class="feedback">&nbsp;</div>
+</div>
+
+<script src="logic.js"></script>
+<script src="celebrate.js"></script>
+<script type="text/javascript">
+(function () {
+  "use strict";
+
+  var wantBigger = true;
+  var stars = 0, locked = false, a = 0, b = 0;
+  try { var sv = window.localStorage.getItem("hub_stars"); if (sv) { stars = parseInt(sv,10)||0; } } catch (e) {}
+
+  var el = {
+    prompt: document.getElementById("prompt"),
+    ans: document.getElementById("answers"),
+    fb: document.getElementById("feedback"),
+    star: document.getElementById("starCount"),
+    mBig: document.getElementById("mBig"),
+    mSmall: document.getElementById("mSmall")
+  };
+  el.star.innerHTML = String(stars);
+
+  function rnd(n){ return Math.floor(Math.random()*n); }
+
+  function newQuestion(){
+    locked=false;
+    el.fb.className="feedback"; el.fb.innerHTML="&nbsp;";
+    el.prompt.innerHTML = wantBigger ? "Kumpi on suurempi?" : "Kumpi on pienempi?";
+    var q = Hub.compare.make(wantBigger);
+    a = q.a; b = q.b;
+    el.ans.innerHTML="";
+    for (var i=0;i<q.options.length;i++){
+      (function(v){
+        var btn=document.createElement("button");
+        btn.className="answer";
+        btn.style.background="#e64980";
+        btn.innerHTML=String(v);
+        btn.setAttribute("data-v", String(v));
+        btn.onclick=onAnswer;
+        el.ans.appendChild(btn);
+      })(q.options[i]);
+    }
+  }
+
+  function onAnswer(){
+    if (locked) return;
+    var v = parseInt(this.getAttribute("data-v"),10);
+    var correct = wantBigger ? Math.max(a,b) : Math.min(a,b);
+    if (v===correct){
+      locked=true;
+      this.className="answer good";
+      el.fb.className="feedback ok"; el.fb.innerHTML="Oikein! &#9733;";
+      stars++; el.star.innerHTML=String(stars);
+      try { window.localStorage.setItem("hub_stars", String(stars)); } catch(e){}
+      try { if (window.celebrate) window.celebrate(); } catch(e){}
+      setTimeout(newQuestion, 1300);
+    } else {
+      this.className="answer bad";
+      el.fb.className="feedback no"; el.fb.innerHTML="Yritä uudelleen";
+    }
+  }
+
+  function setMode(big){
+    wantBigger=big;
+    el.mBig.className="mode-btn"+(big?" on":"");
+    el.mSmall.className="mode-btn"+(big?"":" on");
+    newQuestion();
+  }
+  el.mBig.onclick=function(){ setMode(true); };
+  el.mSmall.onclick=function(){ setMode(false); };
+
+  newQuestion();
+  setTimeout(function(){ window.scrollTo(0,1); }, 200);
+})();
+</script>
+</body>
+</html>
