@@ -114,8 +114,12 @@
     bannerTimer = setTimeout(function () { banner.style.display = "none"; }, 1200);
   }
 
+  function isMuted() {
+    try { return window.localStorage.getItem("hub_mute") === "1"; } catch (e) { return false; }
+  }
+
   window.celebrate = function () {
-    try { if (snd) { snd.currentTime = 0; snd.play(); } } catch (e) {}
+    try { if (snd && !isMuted()) { snd.currentTime = 0; snd.play(); } } catch (e) {}
     try { burst(); } catch (e) {}
     try { praise(); } catch (e) {}
   };

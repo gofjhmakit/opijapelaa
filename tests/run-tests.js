@@ -234,7 +234,7 @@ htmlFiles.forEach(function (f) {
   }
 });
 // external js files parse
-["logic.js", "celebrate.js"].forEach(function (f) {
+["logic.js", "celebrate.js", "ui.js"].forEach(function (f) {
   try { new vm.Script(fs.readFileSync(path.join(HUB, f), "utf8")); ok(true, f + " parses"); }
   catch (e) { ok(false, f + " parse: " + e.message); }
 });

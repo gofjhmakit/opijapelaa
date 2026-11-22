@@ -116,6 +116,31 @@ h1.title {
 /* small captions above the kertotaulu selectors */
 .rowlabel { font-size: 15px; color: #868e96; font-weight: 700; margin: 10px 0 2px 0; text-align: center; letter-spacing: 0.4px; }
 
+/* Global settings row (mute / dim), injected by ui.js on every page */
+.settings { text-align: center; margin: 8px 0 2px 0; }
+.set-btn {
+  display: inline-block;
+  padding: 9px 15px; margin: 0 5px;
+  font-size: 18px; font-weight: 700;
+  color: #495057; background: #e9ecef;
+  border: 2px solid #ced4da; border-radius: 14px;
+  vertical-align: middle;
+}
+.set-btn svg { vertical-align: middle; margin-right: 6px; }
+.set-btn span { vertical-align: middle; }
+.set-btn:active { -webkit-transform: scale(0.96); transform: scale(0.96); }
+
+/* "Himmeä" dim mode: a soft dark veil over everything (not an inverted dark theme).
+   pointer-events none so taps still pass through; works on the old WebKit. */
+html.hub-dim::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.42);
+  pointer-events: none;
+  z-index: 99999;
+}
+
 /* Big card shown to the child */
 .card {
   background: #fff;
