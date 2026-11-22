@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Laskeminen</title>
+<link rel="stylesheet" href="hub.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fdf6e3">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Opi ja pelaa">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <script src="pwa.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="btn-back" href="index.html">&#8592; Takaisin</a>
+    <div class="stars"><span id="starCount">0</span> <span class="s">&#9733;</span></div>
+  </div>
+
+  <div class="modes" id="opRow">
+    <span class="mode-btn on" id="mPlus">Plus +</span>
+    <span class="mode-btn" id="mMinus">Miinus &#8722;</span>
+    <span class="mode-btn hard" id="mMul"></span>
+    <span class="mode-btn hard" id="mDiv"></span>
+    <span class="mode-btn" id="mMix">Sekaisin</span>
+  </div>
+
+  <div class="modes" id="rangeRow"></div>
+
+  <div id="tblWrap" style="display:none;">
+    <div class="rowlabel">Kertotaulu</div>
+    <div class="modes" id="tableRow"></div>
+    <div class="rowlabel">Kuinka pitk&auml;lle</div>
+    <div class="modes" id="uptoRow"></div>
+  </div>
+
+  <div class="card">
+    <div id="question" class="question">2 + 3 = ?</div>
+    <div class="answers" id="answers"></div>
+    <div id="feedback" class="feedback">&nbsp;</div>
+  </div>
+
+  <p class="hint">Paina oikeaa vastausta.</p>
+</div>
+
+<script src="logic.js"></script>
+<script src="celebrate.js"></script>
+<script type="text/javascript">
+(function () {
+  "use strict";
+
+  /* cute outlined skull so hard modes look "cool" (SVG, not emoji -> safe on old WebKit) */
+  var SKULL =
+    '<svg width="22" height="22" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:5px;">' +
+    '<path d="M12 2.4 C6.9 2.4 3.4 6 3.4 10.6 C3.4 13.1 4.7 14.9 6.4 15.9 L6.4 17.6 ' +
+    'C6.4 18.4 7.1 19.1 7.9 19.1 L16.1 19.1 C16.9 19.1 17.6 18.4 17.6 17.6 L17.6 15.9 ' +
+    'C19.3 14.9 20.6 13.1 20.6 10.6 C20.6 6 17.1 2.4 12 2.4 Z" fill="#fff" stroke="#343a40" stroke-width="1.3"/>' +
+    '<ellipse cx="8.7" cy="10.4" rx="2.2" ry="2.6" fill="#343a40"/>' +
+    '<ellipse cx="15.3" cy="10.4" rx="2.2" ry="2.6" fill="#343a40"/>' +
+    '<path d="M12 12.3 L10.8 14.6 L13.2 14.6 Z" fill="#343a40"/>' +
+    '<g stroke="#343a40" stroke-width="1" stroke-linecap="round">' +
+    '<line x1="9.6" y1="16.1" x2="9.6" y2="19"/>' +
+    '<line x1="12" y1="16.1" x2="12" y2="19"/>' +
+    '<line x1="14.4" y1="16.1" x2="14.4" y2="19"/></g></svg>';
+
+  var RANGES = [10, 20, 30, 40, 50];
+  var TABLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]; // 0 = "Kaikki" (mixed)
+  var UPTOS  = [3, 5, 10];
+
+  var op = "plus";          // plus | minus | mix | mul | div
+  var maxN = 10;            // for plus/minus/mix
+  var table = 1;            // for mul/div (0 = mixed)
+  var upto = 5;             // for mul/div
+  var stars = 0;
+  var answer = 0;
+  var locked = false;
+  var rangeBtns = [], tableBtns = [], uptoBtns = [];
+
+  try { var sv = window.localStorage.getItem("hub_stars"); if (sv) { stars = parseInt(sv, 10) || 0; } } catch (e) {}
+
+  var el = {
+    q: document.getElementById("question"),
+    ans: document.getElementById("answers"),
+    fb: document.getElementById("feedback"),
+    star: document.getElementById("starCount"),
+    mPlus: document.getElementById("mPlus"),
+    mMinus: document.getElementById("mMinus"),
+    mMul: document.getElementById("mMul"),
+    mDiv: document.getElementById("mDiv"),
+    mMix: document.getElementById("mMix"),
+    rangeRow: document.getElementById("rangeRow"),
+    tblWrap: document.getElementById("tblWrap"),
+    tableRow: document.getElementById("tableRow"),
+    uptoRow: document.getElementById("uptoRow")
+  };
+  el.star.innerHTML = String(stars);
+  el.mMul.innerHTML = SKULL + "Kerto &#215;";
+  el.mDiv.innerHTML = SKULL + "Jako &#247;";
+
+  function makeQuestion() {
+    var q;
+    if (op === "mul") { q = Hub.math.mul(table, upto); }
+    else if (op === "div") { q = Hub.math.div(table, upto); }
+    else { q = Hub.math.make(op, maxN); }
+    answer = q.answer;
+    el.q.innerHTML = q.text;
+    buildAnswers(q.options);
+  }
+
+  function buildAnswers(opts) {
+    el.ans.innerHTML = "";
+    for (var m = 0; m < opts.length; m++) {
+      var btn = document.createElement("button");
+      btn.className = "answer";
+      btn.innerHTML = String(opts[m]);
+      btn.setAttribute("data-v", String(opts[m]));
+      btn.onclick = onAnswer;
+      el.ans.appendChild(btn);
+    }
+  }
+
+  function onAnswer() {
+    if (locked) { return; }
+    var v = parseInt(this.getAttribute("data-v"), 10);
+    if (v === answer) {
+      locked = true;
+      this.className = "answer good";
+      el.fb.className = "feedback ok";
+      el.fb.innerHTML = "Oikein! &#9733;";
+      stars += 1;
+      el.star.innerHTML = String(stars);
+      try { window.localStorage.setItem("hub_stars", String(stars)); } catch (e) {}
+      try { if (window.celebrate) window.celebrate(); } catch (e) {}
+      setTimeout(function () {
+        locked = false;
+        el.fb.className = "feedback";
+        el.fb.innerHTML = "&nbsp;";
+        makeQuestion();
+      }, 1300);
+    } else {
+      this.className = "answer bad";
+      el.fb.className = "feedback no";
+      el.fb.innerHTML = "Yrit&auml; uudelleen";
+    }
+  }
+
+  function refreshOpButtons() {
+    el.mPlus.className  = "mode-btn" + (op === "plus"  ? " on" : "");
+    el.mMinus.className = "mode-btn" + (op === "minus" ? " on" : "");
+    el.mMix.className   = "mode-btn" + (op === "mix"   ? " on" : "");
+    el.mMul.className   = "mode-btn hard" + (op === "mul" ? " on" : "");
+    el.mDiv.className   = "mode-btn hard" + (op === "div" ? " on" : "");
+  }
+
+  function setOp(o) {
+    op = o;
+    refreshOpButtons();
+    var hard = (o === "mul" || o === "div");
+    el.rangeRow.style.display = hard ? "none" : "block";
+    el.tblWrap.style.display  = hard ? "block" : "none";
+    makeQuestion();
+  }
+  function setRange(r) {
+    maxN = r;
+    for (var i = 0; i < rangeBtns.length; i++) {
+      rangeBtns[i].className = "mode-btn" + (RANGES[i] === r ? " on" : "");
+    }
+    makeQuestion();
+  }
+  function setTable(t) {
+    table = t;
+    for (var i = 0; i < tableBtns.length; i++) {
+      tableBtns[i].className = "mode-btn" + (TABLES[i] === t ? " on" : "");
+    }
+    makeQuestion();
+  }
+  function setUpto(u) {
+    upto = u;
+    for (var i = 0; i < uptoBtns.length; i++) {
+      uptoBtns[i].className = "mode-btn" + (UPTOS[i] === u ? " on" : "");
+    }
+    makeQuestion();
+  }
+
+  function addBtn(row, text, on, handler) {
+    var b = document.createElement("span");
+    b.className = "mode-btn" + (on ? " on" : "");
+    b.innerHTML = text;
+    b.onclick = handler;
+    row.appendChild(b);
+    return b;
+  }
+
+  var i;
+  for (i = 0; i < RANGES.length; i++) {
+    (function (val) {
+      rangeBtns.push(addBtn(el.rangeRow, String(val) + " asti", val === maxN, function () { setRange(val); }));
+    })(RANGES[i]);
+  }
+  for (i = 0; i < TABLES.length; i++) {
+    (function (val) {
+      var label = (val === 0) ? "Kaikki" : String(val);
+      tableBtns.push(addBtn(el.tableRow, label, val === table, function () { setTable(val); }));
+    })(TABLES[i]);
+  }
+  for (i = 0; i < UPTOS.length; i++) {
+    (function (val) {
+      uptoBtns.push(addBtn(el.uptoRow, String(val) + " asti", val === upto, function () { setUpto(val); }));
+    })(UPTOS[i]);
+  }
+
+  el.mPlus.onclick  = function () { setOp("plus"); };
+  el.mMinus.onclick = function () { setOp("minus"); };
+  el.mMul.onclick   = function () { setOp("mul"); };
+  el.mDiv.onclick   = function () { setOp("div"); };
+  el.mMix.onclick   = function () { setOp("mix"); };
+
+  makeQuestion();
+  setTimeout(function () { window.scrollTo(0, 1); }, 200);
+})();
+</script>
+</body>
+</html>

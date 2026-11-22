@@ -8,6 +8,9 @@ It was built to breathe new life into an ancient Android 4.1 tablet as an offlin
 toy for a 5‑year‑old, so every page is deliberately lightweight and works on a very old
 browser engine — but it opens just as happily in any modern browser.
 
+**▶ Play online:** <https://gofjhmakit.github.io/opijapelaa/> — works on any phone, tablet or
+computer, and can be saved to the home screen as an app (see [Run it](#run-it)).
+
 ![The game menu](docs/screenshots/menu.png)
 
 ## The games
@@ -39,8 +42,16 @@ Correct answers get a little confetti burst, a short fanfare, and rotating Finni
 
 ## Run it
 
-**In any browser (easiest):** open `kids-hub/index.html` directly — it works straight from
-`file://`, fully offline. Nothing to install, no build step, no server.
+**Online (easiest):** just open <https://gofjhmakit.github.io/opijapelaa/>.
+
+**Save it as an app (iPhone/iPad/Android):** open the link above, then use your browser's
+**"Add to Home Screen"** (Safari: Share → Add to Home Screen; Chrome: menu → Install app).
+It gets its own icon, opens fullscreen without the browser bars, and keeps working **offline**
+after the first visit (a service worker caches everything).
+
+**Fully offline from files:** open `kids-hub/index.html` directly — it works straight from
+`file://` with no internet, no server, no build step. This is the version that runs on the
+old tablet.
 
 **On an Android tablet:** copy the `kids-hub/` folder onto the device and open `index.html`
 in the browser. For a kid‑friendly, chromeless experience there's also a tiny fullscreen
@@ -76,6 +87,20 @@ node tests/run-tests.js      # zero-dependency test suite (~250k assertions)
 The tests check every generator (correct answer + 3 distinct in‑range options), content
 integrity (no duplicate sentences, unique word/colour/shape data, clean divisions that never
 make a fraction), and that every page parses with no broken asset references.
+
+### The hosted version (`web/`)
+
+`kids-hub/` is the single source of truth. The online [`web/`](web/) folder is **generated**
+from it by [`tools/build_web.py`](tools/build_web.py), which copies the games and layers on the
+web‑app bits (manifest, icons, Apple "Add to Home Screen" tags, and an offline service worker).
+After editing a game, regenerate and commit it:
+
+```sh
+python3 tools/build_web.py      # rebuilds web/ from kids-hub/ + web-src/
+```
+
+A GitHub Actions workflow then redeploys `web/` to GitHub Pages. The tablet build
+(`kids-hub/` + `app/`) is never affected by any of this.
 
 ## Why it looks "early‑2000s"
 

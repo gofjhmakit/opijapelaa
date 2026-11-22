@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Lukeminen</title>
+<link rel="stylesheet" href="hub.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fdf6e3">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Opi ja pelaa">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <script src="pwa.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <a class="btn-back" href="index.html">&#8592; Takaisin</a>
+    <div class="stars"><span id="starCount">0</span> <span class="s">&#9733;</span></div>
+  </div>
+
+  <div class="modes">
+    <span class="mode-btn" id="mSanat">Sanat</span>
+    <span class="mode-btn on" id="mLauseet">Lauseet</span>
+  </div>
+  <div class="modes" id="diffRow">
+    <span class="mode-btn on" id="dEasy">Helppo</span>
+    <span class="mode-btn" id="dHard">Vaikea</span>
+  </div>
+
+  <div class="card">
+    <div id="picHolder"></div>
+    <div id="text" class="sentence">Min&auml; osaan jo lukea!</div>
+  </div>
+
+  <button class="next" id="nextBtn">Seuraava &#8594;</button>
+  <p class="hint">Lue &auml;&auml;neen ja paina Seuraava.</p>
+</div>
+
+<script src="logic.js"></script>
+<script src="celebrate.js"></script>
+<script type="text/javascript">
+(function () {
+  "use strict";
+
+  /* picture illustrations for the word mode (presentation only) */
+  var SVG = {
+    kissa: '<svg class="pic" viewBox="0 0 100 100"><polygon points="28,20 36,42 20,42" fill="#868e96"/><polygon points="72,20 80,42 64,42" fill="#868e96"/><circle cx="50" cy="56" r="30" fill="#adb5bd"/><circle cx="40" cy="52" r="5" fill="#212529"/><circle cx="60" cy="52" r="5" fill="#212529"/><polygon points="50,60 44,66 56,66" fill="#f783ac"/><line x1="56" y1="64" x2="86" y2="58" stroke="#495057" stroke-width="2"/><line x1="56" y1="68" x2="86" y2="70" stroke="#495057" stroke-width="2"/><line x1="44" y1="64" x2="14" y2="58" stroke="#495057" stroke-width="2"/><line x1="44" y1="68" x2="14" y2="70" stroke="#495057" stroke-width="2"/></svg>',
+    koira: '<svg class="pic" viewBox="0 0 100 100"><ellipse cx="24" cy="46" rx="11" ry="22" fill="#8c6239"/><ellipse cx="76" cy="46" rx="11" ry="22" fill="#8c6239"/><circle cx="50" cy="54" r="30" fill="#b07d4f"/><circle cx="40" cy="50" r="5" fill="#212529"/><circle cx="60" cy="50" r="5" fill="#212529"/><ellipse cx="50" cy="66" rx="10" ry="8" fill="#5c3d1e"/><circle cx="50" cy="63" r="4" fill="#212529"/></svg>',
+    talo: '<svg class="pic" viewBox="0 0 100 100"><polygon points="50,14 90,46 10,46" fill="#e8590c"/><rect x="20" y="46" width="60" height="42" fill="#ffd8a8"/><rect x="44" y="60" width="16" height="28" fill="#8c5a2b"/><rect x="28" y="54" width="12" height="12" fill="#a5d8ff"/><rect x="60" y="54" width="12" height="12" fill="#a5d8ff"/></svg>',
+    auto: '<svg class="pic" viewBox="0 0 100 100"><rect x="12" y="50" width="76" height="22" rx="6" fill="#1971c2"/><path d="M26 50 L38 34 L66 34 L78 50 Z" fill="#4dabf7"/><rect x="42" y="37" width="20" height="12" fill="#d0ebff"/><circle cx="30" cy="74" r="10" fill="#212529"/><circle cx="70" cy="74" r="10" fill="#212529"/><circle cx="30" cy="74" r="4" fill="#adb5bd"/><circle cx="70" cy="74" r="4" fill="#adb5bd"/></svg>',
+    pallo: '<svg class="pic" viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="#f03e3e"/><path d="M16 50 A34 34 0 0 1 84 50" fill="none" stroke="#fff" stroke-width="4"/><line x1="50" y1="16" x2="50" y2="84" stroke="#fff" stroke-width="4"/><ellipse cx="50" cy="50" rx="34" ry="14" fill="none" stroke="#fff" stroke-width="4"/></svg>',
+    kala: '<svg class="pic" viewBox="0 0 100 100"><ellipse cx="46" cy="52" rx="30" ry="18" fill="#22b8cf"/><polygon points="74,52 94,38 94,66" fill="#15aabf"/><circle cx="34" cy="48" r="4" fill="#212529"/><path d="M40 58 Q50 64 60 58" fill="none" stroke="#0b7285" stroke-width="2"/></svg>',
+    aurinko: '<svg class="pic" viewBox="0 0 100 100"><g stroke="#f59f00" stroke-width="5" stroke-linecap="round"><line x1="50" y1="8" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="92"/><line x1="8" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="92" y2="50"/><line x1="20" y1="20" x2="30" y2="30"/><line x1="70" y1="70" x2="80" y2="80"/><line x1="80" y1="20" x2="70" y2="30"/><line x1="30" y1="70" x2="20" y2="80"/></g><circle cx="50" cy="50" r="22" fill="#ffd43b"/></svg>',
+    omena: '<svg class="pic" viewBox="0 0 100 100"><path d="M50 30 C30 24 16 44 24 66 C30 82 44 86 50 78 C56 86 70 82 76 66 C84 44 70 24 50 30 Z" fill="#e03131"/><rect x="48" y="18" width="4" height="14" fill="#5c3d1e"/><path d="M52 22 Q66 16 64 28 Q54 30 52 22 Z" fill="#37b24d"/></svg>',
+    kukka: '<svg class="pic" viewBox="0 0 100 100"><line x1="50" y1="52" x2="50" y2="92" stroke="#2f9e44" stroke-width="5"/><path d="M40 72 Q24 68 30 82 Q44 84 40 72 Z" fill="#37b24d"/><circle cx="50" cy="30" r="12" fill="#f783ac"/><circle cx="34" cy="42" r="12" fill="#f783ac"/><circle cx="66" cy="42" r="12" fill="#f783ac"/><circle cx="40" cy="58" r="12" fill="#f783ac"/><circle cx="60" cy="58" r="12" fill="#f783ac"/><circle cx="50" cy="46" r="10" fill="#ffd43b"/></svg>',
+    tahti: '<svg class="pic" viewBox="0 0 100 100"><polygon points="50,10 61,38 92,38 67,57 76,88 50,69 24,88 33,57 8,38 39,38" fill="#fab005"/></svg>'
+  };
+
+  var R = window.Hub.reading;
+  var pickWord = window.Hub.makePicker(R.WORDS.length);
+  var pickEasy = window.Hub.makePicker(R.EASY.length);
+  var pickHard = window.Hub.makePicker(R.HARD.length);
+
+  var mode = "lauseet";   // sanat | lauseet
+  var diff = "easy";      // easy | hard
+  var stars = 0;
+  try { var sv = window.localStorage.getItem("hub_stars"); if (sv) { stars = parseInt(sv, 10) || 0; } } catch (e) {}
+
+  var el = {
+    text: document.getElementById("text"),
+    pic: document.getElementById("picHolder"),
+    star: document.getElementById("starCount"),
+    mSanat: document.getElementById("mSanat"),
+    mLauseet: document.getElementById("mLauseet"),
+    diffRow: document.getElementById("diffRow"),
+    dEasy: document.getElementById("dEasy"),
+    dHard: document.getElementById("dHard"),
+    next: document.getElementById("nextBtn")
+  };
+  el.star.innerHTML = String(stars);
+
+  function render() {
+    if (mode === "sanat") {
+      var item = R.WORDS[pickWord()];
+      el.pic.innerHTML = (item.k && SVG[item.k]) ? SVG[item.k] : "";
+      el.text.className = "word";
+      el.text.innerHTML = item.w;
+    } else if (diff === "hard") {
+      el.pic.innerHTML = "";
+      el.text.className = "sentence";
+      el.text.innerHTML = R.HARD[pickHard()];
+    } else {
+      el.pic.innerHTML = "";
+      el.text.className = "sentence";
+      el.text.innerHTML = R.EASY[pickEasy()];
+    }
+  }
+
+  function addStar() {
+    stars += 1;
+    el.star.innerHTML = String(stars);
+    try { window.localStorage.setItem("hub_stars", String(stars)); } catch (e) {}
+    if (stars % 5 === 0) { try { if (window.celebrate) window.celebrate(); } catch (e) {} }
+  }
+
+  function setMode(m) {
+    mode = m;
+    el.mSanat.className = "mode-btn" + (m === "sanat" ? " on" : "");
+    el.mLauseet.className = "mode-btn" + (m === "lauseet" ? " on" : "");
+    el.diffRow.style.display = (m === "lauseet") ? "block" : "none";
+    render();
+  }
+
+  function setDiff(d) {
+    diff = d;
+    el.dEasy.className = "mode-btn" + (d === "easy" ? " on" : "");
+    el.dHard.className = "mode-btn" + (d === "hard" ? " on" : "");
+    render();
+  }
+
+  el.next.onclick = function () { addStar(); render(); };
+  el.mSanat.onclick = function () { setMode("sanat"); };
+  el.mLauseet.onclick = function () { setMode("lauseet"); };
+  el.dEasy.onclick = function () { setDiff("easy"); };
+  el.dHard.onclick = function () { setDiff("hard"); };
+
+  render();
+  setTimeout(function () { window.scrollTo(0, 1); }, 200);
+})();
+</script>
+</body>
+</html>
