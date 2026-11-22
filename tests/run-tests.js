@@ -251,6 +251,37 @@ for (i = 0; i < N; i++) {
   });
 }
 
+/* ---------------- compounds ("Yhdyssanat") ---------------- */
+ok(Hub.compounds.PAIRS.length >= 30, "compounds has a large pool (" + Hub.compounds.PAIRS.length + ")");
+noDup(Hub.compounds.PAIRS.map(function (p) { return p[0] + p[1]; }), "compound words unique");
+for (i = 0; i < N; i++) {
+  var cp = Hub.compounds.make();
+  ok(cp.options.length === 3 && distinct(cp.options), "compounds 3 distinct options");
+  ok(cp.options.indexOf(cp.answer) >= 0, "compounds options include answer");
+  ok(cp.answer === cp.a + cp.b, "compounds answer = a+b");
+  ok(cp.prompt === cp.a + " + " + cp.b, "compounds prompt formatted");
+}
+
+/* ---------------- synonyms ("Synonyymit") ---------------- */
+var synOf = {};
+Hub.synonyms.SETS.forEach(function (s, idx) {
+  ok(s.length >= 2, "synonym set has >= 2 words");
+  s.forEach(function (w) {
+    ok(!(w in synOf), "synonym word appears in only one set: " + w);
+    synOf[w] = idx;
+  });
+});
+for (i = 0; i < N; i++) {
+  var sn = Hub.synonyms.make();
+  ok(sn.options.length === 3 && distinct(sn.options), "synonyms 3 distinct options");
+  ok(sn.options.indexOf(sn.answer) >= 0, "synonyms options include answer");
+  ok(sn.target !== sn.answer, "synonyms target differs from answer");
+  ok(synOf[sn.answer] === synOf[sn.target], "synonyms answer means the same as target");
+  sn.options.forEach(function (o) {
+    if (o !== sn.answer) { ok(synOf[o] !== synOf[sn.target], "synonyms distractor is NOT a synonym: " + o); }
+  });
+}
+
 /* ---------------- content validation ---------------- */
 function noDup(arr, label) { ok(distinct(arr), label + " has no duplicates"); }
 noDup(Hub.reading.EASY, "reading.EASY");

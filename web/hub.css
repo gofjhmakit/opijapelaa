@@ -90,6 +90,8 @@ h1.title {
 .tile-group { background: #2b8a3e; }
 .tile-riddle { background: #1098ad; }
 .tile-rhyme { background: #c2255c; }
+.tile-compound { background: #5f3dc4; }
+.tile-synonym { background: #66a80f; }
 
 /* color swatch answer buttons */
 .swatch {

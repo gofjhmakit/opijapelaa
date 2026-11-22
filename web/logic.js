@@ -555,6 +555,79 @@
     }
   };
 
+  /* ---------- "Yhdyssanat" (compound words) ---------- */
+  Hub.compounds = {
+    PAIRS: [
+      ["lumi","ukko"],["jää","karhu"],["jää","kaappi"],["hammas","harja"],["hammas","tahna"],
+      ["sade","takki"],["käsi","laukku"],["polku","pyörä"],["kirja","hylly"],["ruoka","pöytä"],
+      ["hiekka","laatikko"],["leikki","kenttä"],["jalka","pallo"],["juna","rata"],["lento","kone"],
+      ["palo","auto"],["maa","pallo"],["aamu","pala"],["ilta","satu"],["talvi","takki"],
+      ["kesä","loma"],["vesi","putous"],["lumi","hiutale"],["lumi","linna"],["joulu","pukki"],
+      ["joulu","kuusi"],["syntymä","päivä"],["nalle","karhu"],["lelu","kauppa"],["kirja","kauppa"],
+      ["vesi","väri"],["sateen","kaari"],["tähti","taivas"],["meri","rosvo"],["voi","leipä"],
+      ["kahvi","kuppi"],["omena","puu"],["marja","mehu"],["kala","keitto"],["liha","pulla"],
+      ["suklaa","kakku"],["selkä","reppu"],["koulu","laukku"],["kissan","pentu"],["koiran","pentu"]
+    ],
+    _pick: null,
+    make: function () {
+      var P = Hub.compounds.PAIRS;
+      if (!Hub.compounds._pick) { Hub.compounds._pick = Hub.makePicker(P.length, 10); }
+      var ti = Hub.compounds._pick();
+      var answer = P[ti][0] + P[ti][1];
+      var opts = [answer], guard = 0;
+      while (opts.length < 3 && guard < 200) {
+        guard++;
+        var j = Hub.rnd(P.length);
+        var c = P[j][0] + P[j][1];
+        if (opts.indexOf(c) < 0) { opts.push(c); }
+      }
+      return { a: P[ti][0], b: P[ti][1], prompt: P[ti][0] + " + " + P[ti][1],
+               answer: answer, options: Hub.shuffle(opts) };
+    }
+  };
+
+  /* ---------- "Synonyymit" (same meaning) ---------- */
+  /* Sets are meaning-disjoint, so a word from another set is not a synonym
+     of the target -> safe distractors. */
+  Hub.synonyms = {
+    SETS: [
+      ["iso","suuri","valtava"],
+      ["pieni","pikkuinen","pikkuruinen"],
+      ["nopea","vikkelä","vauhdikas"],
+      ["iloinen","onnellinen","hyväntuulinen"],
+      ["kaunis","nätti","sievä"],
+      ["likainen","sotkuinen","tahrainen"],
+      ["väsynyt","uupunut","unelias"],
+      ["hauska","kiva","mukava"],
+      ["vihainen","kiukkuinen","ärtynyt"],
+      ["kiltti","ystävällinen"],
+      ["fiksu","viisas","nokkela"],
+      ["pelokas","arka"],
+      ["herkullinen","maukas"],
+      ["hiljainen","äänetön"],
+      ["vahva","voimakas","väkevä"],
+      ["heikko","voimaton","hento"],
+      ["märkä","kostea","vetinen"],
+      ["outo","kummallinen"]
+    ],
+    _pick: null,
+    make: function () {
+      var S = Hub.synonyms.SETS;
+      if (!Hub.synonyms._pick) { Hub.synonyms._pick = Hub.makePicker(S.length, 6); }
+      var si = Hub.synonyms._pick();
+      var picks = Hub.shuffle(S[si].slice());
+      var target = picks[0], answer = picks[1];
+      var others = [], i, j;
+      for (i = 0; i < S.length; i++) {
+        if (i === si) continue;
+        for (j = 0; j < S[i].length; j++) others.push(S[i][j]);
+      }
+      others = Hub.shuffle(others);
+      var opts = [answer, others[0], others[1]];
+      return { target: target, answer: answer, options: Hub.shuffle(opts) };
+    }
+  };
+
   root.Hub = Hub;
   if (typeof module !== "undefined" && module.exports) module.exports = Hub;
 })(typeof window !== "undefined" ? window : this);
