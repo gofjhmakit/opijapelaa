@@ -1,7 +1,7 @@
 /* Service worker for the hosted "Opi ja pelaa" web app.
    Cache-first so it keeps working offline once added to the home screen.
    Bump CACHE whenever the game files change to force a refresh. */
-var CACHE = "opijapelaa-v4";
+var CACHE = "opijapelaa-v5";
 var ASSETS = [
   "./", "index.html", "hub.css", "logic.js", "celebrate.js", "ui.js", "success.wav",
   "manifest.webmanifest",

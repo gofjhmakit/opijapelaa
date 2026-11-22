@@ -522,7 +522,20 @@
       ["silli","villi"],
       ["lippu","nippu","hippu"],
       ["nappi","tappi","happi"],
-      ["onni","sonni"]
+      ["onni","sonni"],
+      ["kieli","mieli"],
+      ["nuoli","tuoli","huoli"],
+      ["muuri","juuri","suuri"],
+      ["saari","vaari","paari"],
+      ["nauha","rauha"],
+      ["siili","viili"],
+      ["kaali","maali","vaali"],
+      ["tonttu","monttu"],
+      ["peto","veto"],
+      ["mato","sato","pato"],
+      ["piha","liha","viha"],
+      ["maha","raha","paha","saha"],
+      ["juna","muna","puna"]
     ],
     _pick: null,
     make: function () {
