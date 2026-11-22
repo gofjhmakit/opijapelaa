@@ -498,6 +498,50 @@
     }
   };
 
+  /* ---------- "Riimit" (rhymes) ---------- */
+  /* Each group rhymes internally; the groups have DISTINCT endings, so a word
+     from another group never rhymes with the target -> safe distractors. */
+  Hub.rhymes = {
+    GROUPS: [
+      ["sukka","kukka","tukka","hukka","nukka"],
+      ["kakku","hakku","takku"],
+      ["kala","pala"],
+      ["kana","sana","jana"],
+      ["talo","palo","valo"],
+      ["puu","suu","kuu","luu","muu"],
+      ["pää","sää","jää"],
+      ["rauta","lauta","hauta","nauta"],
+      ["nakki","takki","lakki","pakki"],
+      ["ukko","lukko","kukko"],
+      ["tuuli","huuli"],
+      ["meri","veri"],
+      ["työ","yö","syö"],
+      ["koppa","soppa"],
+      ["koski","poski","loski"],
+      ["kirkko","sirkko"],
+      ["silli","villi"],
+      ["lippu","nippu","hippu"],
+      ["nappi","tappi","happi"],
+      ["onni","sonni"]
+    ],
+    _pick: null,
+    make: function () {
+      var G = Hub.rhymes.GROUPS;
+      if (!Hub.rhymes._pick) { Hub.rhymes._pick = Hub.makePicker(G.length, 6); }
+      var gi = Hub.rhymes._pick();
+      var picks = Hub.shuffle(G[gi].slice());
+      var target = picks[0], answer = picks[1];
+      var others = [], i, j;
+      for (i = 0; i < G.length; i++) {
+        if (i === gi) continue;
+        for (j = 0; j < G[i].length; j++) others.push(G[i][j]);
+      }
+      others = Hub.shuffle(others);
+      var opts = [answer, others[0], others[1]];
+      return { target: target, answer: answer, options: Hub.shuffle(opts) };
+    }
+  };
+
   root.Hub = Hub;
   if (typeof module !== "undefined" && module.exports) module.exports = Hub;
 })(typeof window !== "undefined" ? window : this);

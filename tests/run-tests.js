@@ -230,6 +230,27 @@ for (i = 0; i < N; i++) {
   ok(typeof rq.q === "string" && rq.q.length > 3, "riddles question present");
 }
 
+/* ---------------- rhymes ("Riimit") ---------------- */
+// every word in exactly one rhyme group, and each group has >= 2 words
+var rhymeOf = {};
+Hub.rhymes.GROUPS.forEach(function (g, idx) {
+  ok(g.length >= 2, "rhyme group has >= 2 words");
+  g.forEach(function (w) {
+    ok(!(w in rhymeOf), "rhyme word appears in only one group: " + w);
+    rhymeOf[w] = idx;
+  });
+});
+for (i = 0; i < N; i++) {
+  var rh = Hub.rhymes.make();
+  ok(rh.options.length === 3 && distinct(rh.options), "rhymes 3 distinct options");
+  ok(rh.options.indexOf(rh.answer) >= 0, "rhymes options include answer");
+  ok(rh.target !== rh.answer, "rhymes target differs from answer");
+  ok(rhymeOf[rh.answer] === rhymeOf[rh.target], "rhymes answer rhymes with target");
+  rh.options.forEach(function (o) {
+    if (o !== rh.answer) { ok(rhymeOf[o] !== rhymeOf[rh.target], "rhymes distractor does NOT rhyme with target: " + o); }
+  });
+}
+
 /* ---------------- content validation ---------------- */
 function noDup(arr, label) { ok(distinct(arr), label + " has no duplicates"); }
 noDup(Hub.reading.EASY, "reading.EASY");

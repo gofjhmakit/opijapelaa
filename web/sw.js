@@ -1,14 +1,14 @@
 /* Service worker for the hosted "Opi ja pelaa" web app.
    Cache-first so it keeps working offline once added to the home screen.
    Bump CACHE whenever the game files change to force a refresh. */
-var CACHE = "opijapelaa-v3";
+var CACHE = "opijapelaa-v4";
 var ASSETS = [
   "./", "index.html", "hub.css", "logic.js", "celebrate.js", "ui.js", "success.wav",
   "manifest.webmanifest",
   "lue.html", "laske.html", "kello.html", "vastakohdat.html", "varit.html",
   "vertailu.html", "muodot.html", "montako.html", "lukujono.html",
   "kirjaimet.html", "viikonpaivat.html", "tavut.html",
-  "mikakuuluu.html", "mikaon.html",
+  "mikakuuluu.html", "mikaon.html", "riimit.html",
   "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"
 ];
 
