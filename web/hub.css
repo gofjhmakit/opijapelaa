@@ -134,17 +134,8 @@ h1.title {
 .set-btn svg { vertical-align: middle; margin-right: 6px; }
 .set-btn span { vertical-align: middle; }
 .set-btn:active { -webkit-transform: scale(0.96); transform: scale(0.96); }
-
-/* "Himmeä" dim mode: a soft dark veil over everything (not an inverted dark theme).
-   pointer-events none so taps still pass through; works on the old WebKit. */
-html.hub-dim::after {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.42);
-  pointer-events: none;
-  z-index: 99999;
-}
+/* Dim mode ("Himmeä") is drawn by ui.js as a real <div> veil appended to the
+   body (a CSS ::after on <html> composites wrong on the old WebKit). */
 
 /* Big card shown to the child */
 .card {

@@ -8,18 +8,28 @@
   function get(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
 
-  var de = document.documentElement;
-
-  function dimOn() { return (" " + de.className + " ").indexOf(" hub-dim ") >= 0; }
-  function setDim(on) {
-    var c = de.className.replace(/(^|\s)hub-dim(\s|$)/g, " ").replace(/\s+/g, " ");
-    c = c.replace(/^\s+|\s+$/g, "");
-    de.className = on ? (c ? c + " hub-dim" : "hub-dim") : c;
-    set("hub_dim", on ? "1" : "0");
+  /* Dim = a soft dark veil drawn as a real <div> appended to the body (same
+     technique the confetti canvas uses, which composites correctly on the old
+     WebKit; a CSS ::after on <html> did not and rendered nearly opaque). */
+  var veil = null;
+  function ensureVeil() {
+    if (veil || !document.body) { return veil; }
+    veil = document.createElement("div");
+    var s = veil.style;
+    s.position = "fixed"; s.left = "0"; s.top = "0";
+    s.width = "100%"; s.height = "100%";
+    s.background = "rgba(0,0,0,0.38)";
+    s.pointerEvents = "none"; s.zIndex = "99998";
+    s.display = "none";
+    document.body.appendChild(veil);
+    return veil;
   }
-
-  /* Apply dim immediately (runs during <head> parse) to avoid a bright flash. */
-  if (get("hub_dim") === "1") { setDim(true); }
+  function dimOn() { return get("hub_dim") === "1"; }
+  function setDim(on) {
+    set("hub_dim", on ? "1" : "0");
+    var v = ensureVeil();
+    if (v) { v.style.display = on ? "block" : "none"; }
+  }
 
   var SPEAKER_ON =
     '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 9 L4 15 L8 15 L13 19 L13 5 L8 9 Z" fill="currentColor"/>' +
@@ -41,6 +51,8 @@
   function injectControls() {
     var wrap = document.getElementsByClassName("wrap")[0];
     if (!wrap || document.getElementById("hub-settings")) { return; }
+
+    setDim(dimOn());  // apply the stored dim state now that <body> exists
 
     var row = document.createElement("div");
     row.className = "settings";
